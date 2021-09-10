@@ -1,5 +1,7 @@
 package com.nulltheory.reps
 
+import android.content.Context
+import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -11,6 +13,7 @@ import java.text.SimpleDateFormat
 
 class RepsActivity : AppCompatActivity() {
     lateinit var mainHandler: Handler
+    lateinit var preferences: SharedPreferences
     lateinit var textRep: TextView
     lateinit var textTime: TextView
     lateinit var buttonTime: Button
@@ -43,15 +46,25 @@ class RepsActivity : AppCompatActivity() {
         textTime = findViewById(R.id.text_time)
         buttonTime = findViewById(R.id.button_time)
         mainHandler = Handler(Looper.getMainLooper())
+        preferences = getPreferences(Context.MODE_PRIVATE)
     }
 
     override fun onResume() {
         super.onResume()
+        reps = preferences.getInt("reps", 0)
+        startTime = preferences.getLong("start_time", 0)
+        elapsedTime = preferences.getLong("elapsed_time", 0)
         mainHandler.post(updateDisplayTask)
     }
 
     override fun onPause() {
         super.onPause()
+        with(preferences.edit()) {
+            putInt("reps", reps)
+            putLong("start_time", startTime)
+            putLong("elapsed_time", elapsedTime)
+            apply()
+        }
         mainHandler.removeCallbacks(updateDisplayTask)
     }
 
